@@ -1,0 +1,80 @@
+<html>
+
+    <head>
+        <title>Main</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script src="https://www.gstatic.com/firebasejs/5.0.0/firebase-app.js"></script>
+        <link href="style.css" rel="stylesheet" type="text/css" media="screen" />
+        <meta charset="UTF-8">
+        <link rel="manifest" href="manifest.json">
+        <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase.js"></script>
+        <script src="config.js"></script>
+        <script src="common.js"></script>
+        <script src="firebaseui.js"></script>
+        <link type="text/css" rel="stylesheet" href="firebaseui.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://www.gstatic.com/firebasejs/ui/4.5.1/firebase-ui-auth__en.js"></script>
+        <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.5.1/firebase-ui-auth.css" />
+    </head>
+  
+    <body>
+        <center>
+            <div class="row h-100">
+                <div class="col-lg-0">
+                    <ul class="nav flex-column">
+                        <br>
+                        <div class="container-fluid bg-3">
+                            <div class="col-sm-12" id="posts">
+                            </div>
+                        </div>
+                        <br>
+                        <script>
+                            var dbPosts = firebase.database().ref().child("Posts").orderByChild("counter");
+                            dbPosts.on("value", function(posts)
+                            {
+                                if(posts.exists())
+                                {
+                                    var postsHtml = "";
+                                    posts.forEach(function(singleBlog)
+                                    {
+                                        counter = counter + 1;
+                                        postsHtml += " <br> <div class='box' style='border-radius: 20px;border: 2px solid #ffffff0f;width: 795px;'> <center> <div background-color:#2a2826!important;'>";
+                                                postsHtml += "<div> <center> <br> <img style='border-radius: 20px; border: 2px solid #fff; max-width: 760px; max-height: 500px;' width='auto' src='";
+                                                postsHtml += singleBlog.val().image;
+                                                postsHtml += "'/> </center> </div> <br>";
+                                                postsHtml += "<div style='width:592px;' class='row'>";
+                                                postsHtml += "<div class='col-sm-6'> <p style='color:#00ffbfb6;'>"
+                                                    + "Published by: " + singleBlog.val().userName
+                                                    + "</p> </div>"
+                                                    + "<div class='col-sm-5'>"
+                                                    + " <p style='color:#00ffbfb6;'>"
+                                                    + "Time: " + singleBlog.val().time
+                                                    + "</p> </div>";
+                                                postsHtml += "</div> <br>";
+                                                postsHtml += "<div style='width:592px;' class='row'>";
+                                                postsHtml += "<div class='col-sm-6'> <p style='color:#00ffbfb6;'>"
+                                                    + "Description: " + singleBlog.val().desc
+                                                    + "</p> </div>"
+                                                    + "<div class='col-sm-5'>"
+                                                    + " <p style='color:#00ffbfb6;'>"
+                                                    + "Genre: " + singleBlog.val().genre
+                                                    + "</p> </div>";
+                                                postsHtml += "</div> <br>";
+                                                postsHtml += "</div> </center> </div> ";
+                                    });
+                                    $("#posts").html(postsHtml);
+                                }
+                            });
+                        </script>
+                    </ul>
+                </div>
+            </div>
+        </center>
+
+        <script src="js/index.js"></script>
+ 
+    </body>
+
+</html>

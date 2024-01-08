@@ -1,0 +1,143 @@
+<div style="background-color: #202020;border-radius: 20px;border: 2px solid #00ff9fbd;">
+    <form action="" style="padding: 10px;">
+        <h3>Account Settings</h3>
+        <div class="form-group">
+            <input id="firstName" type="text" placeholder="First Name" class="form-control">
+            <input id="secondName" type="text" placeholder="Second Name" class="form-control">
+            <br>
+            <input id="gender" type="text" placeholder="Gender" class="form-control">
+            <br>
+            <input id="bio" type="text" placeholder="Bio" class="form-control">
+        </div>
+        <div class="form-group container-login100-form-btn">
+            <button id="btn-update" type="button" style="margin: 0% 35%;background-color: #0000;color: #00ff9fbd;border: none;">
+                Update
+                <i class="zmdi zmdi-arrow-right"></i>
+            </button>
+        </div>
+    </form> 
+
+    <script>
+        $("#btn-update").click(function()
+    {
+        var fName = $("#firstName").val();
+        var sName = $("#secondName").val();
+        var gender = $("#gender").val();
+        var bio = $("#bio").val();
+
+        var rootRef = firebase.database().ref().child("Users");
+        var userID = firebase.auth().currentUser.uid;
+        var usersRef = rootRef.child(userID);
+
+        if(fName!="" && sName!="" && gender!="" && bio!="")
+        {
+          var userData = {
+            "firstName": fName,
+            "secondName": sName,
+            "gender": gender,
+            "bio": bio
+        
+          };
+      
+          usersRef.set(userData, function(error)
+          {
+            if(error)
+            {
+              var errorCode = error.code;
+              var errorMessage = error.message;
+            
+              console.log(errorCode);
+              console.log(errorMessage);
+            
+              window.alert("Message : " + errorMessage);
+            }
+            else
+            {
+              window.location.href = "MainPage.html";
+            }
+          });
+        }
+    else
+    {
+      window.alert("Please write your email first.");
+    }
+    });
+    </script>
+</div>
+
+<br>
+
+<button onclick="var user = firebase.auth().currentUser;
+user.delete().then(function() {
+  // User deleted.
+}).catch(function(error) {
+  // An error happened.
+});" style="margin: 0% 20%;color: #000000bd;
+border: none;
+background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/archive/e/eb/20180306113925%21Blinking_warning.gif/120px-Blinking_warning.gif');
+background-position: center;
+background-size: 30px;
+border-radius: 25px;
+cursor: help;">Delete Your Account</button>
+
+<script>
+    var user = firebase.auth().currentUser;
+    var dbPosts = firebase.database().ref().child("Posts").orderByChild("uid").equalTo(user.uid);
+    dbPosts.on("value", function(posts)
+    {
+        if(posts.exists())
+        {
+            var postsHtml = "";
+            posts.forEach(function(singleBlog)
+            {
+                counter = counter + 1;
+                postsHtml += " <br> <div class='box' style='border-radius: 20px;border: 2px solid #ffffff0f;width: 795px;'> <center> <div background-color:#2a2826!important;'>";
+                postsHtml += "<div> <center> <br> <img style='border-radius: 20px; border: 2px solid #fff; max-width: 760px; max-height: 500px;' width='auto' src='";
+                postsHtml += singleBlog.val().image;
+                postsHtml += "'/> </center> </div> <br>";
+                postsHtml += "<div style='width:592px;' class='row'>";
+                postsHtml += "<div class='col-sm-6'> <p style='color:#00ffbfb6;'>"
+                    + "Published by: " + singleBlog.val().userName
+                    + "</p> </div>"
+                    + "<div class='col-sm-5'>"
+                    + " <p style='color:#00ffbfb6;'>"
+                    + "Time: " + singleBlog.val().time
+                    + "</p> </div>";
+                postsHtml += "</div> <br>";
+                postsHtml += "<div style='width:592px;' class='row'>";
+                postsHtml += "<div class='col-sm-6'> <p style='color:#00ffbfb6;'>"
+                    + "Description: " + singleBlog.val().desc
+                    + "</p> </div>"
+                    + "<div class='col-sm-5'>"
+                    + " <p style='color:#00ffbfb6;'>"
+                    + "Genre: " + singleBlog.val().genre
+                    + "</p> </div>";
+                postsHtml += "</div> <br>";
+                
+                postsHtml +="<div class='form-group' style='text-align: justify; color: black; width: 200px;'>";
+                postsHtml +="<button class='form-control btn btn-light bg-dark text-white' onclick=deleteblogRecord('"+singleBlog.key+"')>Delete this Post</button>";
+                postsHtml +="</div> <br>";
+                
+                postsHtml += "</div> </center> </div> ";
+            });
+            $("#posts").html(postsHtml);
+        }
+    });
+
+    function deleteblogRecord(key)
+    {
+        var deleteRef = firebase.database().ref().child("Posts").child(key);
+
+        return deleteRef.remove()
+        .then(function()
+        {
+            console.log("Removed Seccussfully.");
+        })
+        .catch(function()
+        {
+            console.log("Error Occured.");
+        });
+    }
+
+</script>
+<script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-analytics.js"></script>

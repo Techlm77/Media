@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Main</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.0.0/firebase-app.js"></script>
+    <link href="style.css" rel="stylesheet" type="text/css" media="screen" />
+    <meta charset="UTF-8">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase.js"></script>
+    <script src="config.js"></script>
+    <script src="common.js"></script>
+    <script src="firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="firebaseui.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://www.gstatic.com/firebasejs/ui/4.5.1/firebase-ui-auth__en.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.5.1/firebase-ui-auth.css" />
+</head>
+
+<body>
+
+    <div class="desktop">
+
+        <nav class="navbar navbar-expand-lg text-white" style="left: -1.5%; top: -10%;">
+            <div class="container-fluid">
+                <ul class="nav navber-nav">
+                    <li class="active" style="border-radius: 25px;color: #00ff9fbd;">
+                        <a class="nav-link" style="color: #00ff9fbd;text-decoration-style: wavy;"
+                            href="MainPage.html">Home</a>
+                    </li>
+                    <li class="active">
+                        <a class="nav-link" onclick="switchView('myposts.html')">
+                            <span
+                                style="text-decoration-style: wavy;color: #00ff9fbd;position: absolute;right: 10%;cursor: pointer;">Profile</span>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a class="nav-link"
+                            style="text-decoration-style: wavy;color: #00ff9fbd;cursor: pointer;position: absolute;right: 1%;"
+                            onclick="firebase.auth().signOut();">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <hr style="background-color: #00ff9fbd;">
+
+        <div class="row h-100">
+            <div class="col-lg-0" style="margin: 0% 30%;">
+                <ul class="nav flex-column">
+
+                    <div
+                        style="background-color: #202020; margin-top: 15px; border-radius: 20px; border: 2px solid #00ff9fbd">
+                        <br>
+                        <script>
+                            var counter = 0;
+                        </script>
+                        <div class="container text-center">
+                            <form class="main-form">
+                                <div style="margin-left: 1em; width: 235px;" class="form-group">
+                                    <input type="file" class="form-control" id="main-post"
+                                        style="width: 235px;" /></input>
+                                    <div class="invalid-feedback">
+                                        Please choose a valid file format.
+                                    </div>
+                                    <textarea style="margin-top: 1em; height: 40px;" type="text" rows="5"
+                                        placeholder="Genre" class="form-control" id="main-genre"
+                                        onkeypress="lettersOnly(this)" onkeyup="lettersOnly(this)"
+                                        onkeydown="lettersOnly(this)" onpaste="return false;"></textarea>
+                                    <div class="invalid-feedback">
+                                        Please write a genre about your post.
+                                    </div>
+                                </div>
+                                <div style="width: 530px; margin-left: 17em; margin-top: -7em;" class="form-group">
+                                    <textarea style="height: 195px;" type="text" rows="5" placeholder="Description..."
+                                        class="form-control" id="main-desc" onkeypress="lettersOnly(this)"
+                                        onkeyup="lettersOnly(this)" onkeydown="lettersOnly(this)"
+                                        onpaste="return false;"></textarea>
+                                    <div class="invalid-feedback">
+                                        Please write some description about your digital art.
+                                    </div>
+                                </div>
+                                <div style="margin-left: 1em;margin-top: -6em; width: 235px;" class="form-group">
+                                    <div class="progress bg-secondary">
+                                        <div class="progress-bar bg-success" id="upload-progress" style="width: 0%;">0%
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="margin-left: 1em; width: 235px;" class="form-group">
+                                    <button id="save-post" type="button" style="width: 115px; height: 50px;"
+                                        class="btn btn-light bg-light text-dark">Post</button>
+                                </div>
+                            </form>
+                            <div id="result">
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="container-fluid bg-3">
+                        <div class="col-sm-12" id="posts">
+                        </div>
+                    </div>
+                    <br>
+                    <script>
+                        var validVideotypes = ["video/mp4", "image/gif", "image/jpeg", "image/png"];
+
+                        $("#save-post").click(function () {
+                            $("#main-desc").removeClass("is-invalid");
+                            $("#main-post").removeClass("is-invalid");
+                            $("#main-genre").removeClass("is-invalid");
+
+                            var desc = $("#main-desc").val();
+                            var genre = $("#main-genre").val();
+                            var blog = $("#main-post").prop("files")[0];
+
+                            if (!genre) {
+                                $("#main-genre").addClass("is-invalid");
+                                return;
+                            }
+
+                            if (!desc) {
+                                $("#main-desc").addClass("is-invalid");
+                                return;
+                            }
+
+                            if (!blog) {
+                                $("#main-post").addClass("is-invalid");
+                                return;
+                            }
+
+                            if ($.inArray(blog["type"], validVideotypes) < 0) {
+                                $("#main-post").addClass("is-invalid");
+                                return;
+                            }
+
+                            var databaseRef = firebase.database().ref().child("Posts");
+
+                            databaseRef.once("value").then(function (snapshot) {
+                                var name = blog["name"];
+                                var dateStr = new Date().getTime();
+                                var fileCompleteName = name + "_" + dateStr;
+
+                                var storageRef = firebase.storage().ref("Posts Group");
+                                var postedStorageRef = storageRef.child(fileCompleteName);
+
+                                var uploadTask = postedStorageRef.put(blog);
+
+                                uploadTask.on(
+                                    "state_changed",
+                                    function progress(snapshot) {
+                                        var percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                        $("#upload-progress").html(Math.round(percentage) + "%");
+                                        $("#upload-progress").attr("style", "width:" + percentage + "%");
+                                    },
+                                    function error(err) { },
+                                    function complete() {
+                                        var user = firebase.auth().currentUser;
+                                        var userName;
+
+                                        firebase
+                                            .database()
+                                            .ref("Users/" + user.uid)
+                                            .once("value")
+                                            .then(function (snapshot) {
+                                                var fName = snapshot.val() && snapshot.val().firstName;
+                                                var sName = snapshot.val() && snapshot.val().secondName;
+                                                userName = fName + " " + sName;
+                                            });
+
+                                        uploadTask.snapshot.ref.getDownloadURL().then(function (downloadUrl) {
+                                            var time = new Date();
+                                            var options = {
+                                                weekday: "long",
+                                                month: "long",
+                                                day: "2-digit",
+                                                year: "numeric",
+                                            };
+                                            var postedData = {
+                                                image: downloadUrl,
+                                                name: fileCompleteName,
+                                                desc: desc,
+                                                genre: genre,
+                                                uid: user.uid,
+                                                counter: 5000 - counter,
+                                                userName: userName,
+                                                time: time.toLocaleDateString("en-UK", {
+                                                    hour: "numeric",
+                                                    minute: "numeric",
+                                                    hour12: true,
+                                                }),
+                                                date: time.toLocaleDateString("en-UK", options),
+                                            };
+
+                                            var newPostRef = databaseRef.push();
+                                            var postId = newPostRef.key;
+                                            newPostRef.set(postedData, function (err) {
+                                                if (err) {
+                                                    $("#result").attr("class", "alert alert-danger");
+                                                    $("#result").html(err.message);
+                                                } else {
+                                                    $("#result").attr("class", "alert alert-success");
+                                                    $("#result").html("Post has been updated successfully.");
+
+                                                    // Append the post ID to the current URL for sharing
+                                                    var shareUrl = window.location.href + "?postId=" + postId;
+                                                    // Display the share URL or use it as desired (e.g., show in a share dialog)
+                                                    console.log("Share URL: ", shareUrl);
+
+                                                    window.open("", "_self");
+                                                }
+                                                resetForm();
+                                            });
+                                        });
+                                    }
+                                );
+                            });
+                        });
+
+                        function resetForm() {
+                            $("#main-form")[0].reset();
+                            $("#selected-post").fadeOut();
+                            $("#upload-progress").html("Completed");
+                        }
+
+                        var dbPosts = firebase.database().ref().child("Posts").orderByChild("counter");
+                        dbPosts.on("value", function (posts) {
+                            if (posts.exists()) {
+                                var postsHtml = "";
+                                posts.forEach(function (singleBlog) {
+                                    counter = counter + 1;
+                                    postsHtml +=
+                                        "<br> <div class='box' style='border-radius: 20px;border: 2px solid #ffffff0f;width: 795px;'> <center> <div style='border-radius: 20px; background-color:#2a2826!important;'>";
+                                    postsHtml +=
+                                        "<div> <center> <br> <img style='border-radius: 20px; border: 2px solid #fff; max-width: 760px; max-height: 500px;' width='auto' src='" +
+                                        singleBlog.val().image +
+                                        "'/> </center> </div> <br>";
+                                    postsHtml += "<div style='width:592px;' class='row'>";
+                                    postsHtml +=
+                                        "<div class='col-sm-6'> <p style='color:#00ffbfb6;'>" +
+                                        "Published by: " +
+                                        singleBlog.val().userName +
+                                        "</p> </div>" +
+                                        "<div class='col-sm-5'>" +
+                                        " <p style='color:#00ffbfb6;'>" +
+                                        "Time: " +
+                                        singleBlog.val().time +
+                                        "</p> </div>";
+                                    postsHtml += "</div> <br>";
+                                    postsHtml += "<div style='width:592px;' class='row'>";
+                                    postsHtml +=
+                                        "<div class='col-sm-6'> <p style='color:#00ffbfb6;'>" +
+                                        "Description: " +
+                                        singleBlog.val().desc +
+                                        "</p> </div>" +
+                                        "<div class='col-sm-5'>" +
+                                        " <p style='color:#00ffbfb6;'>" +
+                                        "Genre: " +
+                                        singleBlog.val().genre +
+                                        "</p> </div>";
+                                    postsHtml += "</div> <br>";
+                                    postsHtml += "<div class='row align-items-center' style='padding: 0% 0% 3% 0%;'>";
+                                    postsHtml +=
+                                        "<div class='col-sm-6'> <button style='color: #00ffbfb6;background-color: #343a4000;border-color: #343a40;' class='btn btn-like' onclick='likePost(\"" +
+                                        singleBlog.key +
+                                        "\")' id='like-btn-" +
+                                        singleBlog.key +
+                                        "'>Like <span id='likes-count-" +
+                                        singleBlog.key +
+                                        "'>" +
+                                        (singleBlog.val().likes || 0) +
+                                        "</span></button></div>";
+                                    postsHtml +=
+                                        "<div class='col-sm-6'> <button style='color: #00ffbfb6;background-color: #343a4000;border-color: #343a40;' class='btn btn-share' onclick='sharePost(\"" +
+                                        singleBlog.key +
+                                        "\")' id='share-btn-" +
+                                        singleBlog.key +
+                                        "'>Share</button></div>";
+                                    postsHtml += "</div> </center> </div>";
+                                });
+                                $("#posts").html(postsHtml);
+                            }
+                        });
+
+                        function sharePost(postId) {
+                            var shareUrl = window.location.origin + "/media/singlepost.html?postId=" + postId;
+                            window.open(shareUrl, "_blank");
+                        }
+
+                        function likePost(postId) {
+                            var postRef = firebase.database().ref("Posts/" + postId);
+                            postRef.transaction(function (post) {
+                                if (post) {
+                                    if (!post.likes) {
+                                        post.likes = 0;
+                                    }
+                                    if (post.userLiked) {
+                                        post.likes--;
+                                        post.userLiked = false;
+                                    } else {
+                                        post.likes++;
+                                        post.userLiked = true;
+                                    }
+                                }
+                                return post;
+                            });
+                        }
+                    </script>
+
+                </ul>
+            </div>
+
+            <div class="col-lg-12" style="max-width: 340px;position: absolute;margin-top: 15px;margin-left: 60px;">
+                <div class="container" id="container">
+
+                </div>
+            </div>
+        </div>
+
+        <script src="js/index.js"></script>
+        <script>
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (!user) {
+                    window.location.href = "signin.html";
+                }
+            });
+        </script>
+
+        <script>
+            function lettersOnly(textarea) {
+                var regex = /[^a-z/0-9/ /'/./?/,/!]/gi;
+                textarea.value = textarea.value.replace(regex, "");
+            }
+        </script>
+    </div>
+
+</body>
+
+</html>

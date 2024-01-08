@@ -1,0 +1,14 @@
+{
+  "name": "change-this",
+  "short_name": "change-this",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff",
+  "lang": "en-GB",
+  "description": "Digital media",
+  "prefer_related_applications": false,
+  "theme_color": "#fff",
+  "scope": "/",
+  "orientation": "portrait-primary"
+}
+  

@@ -1,0 +1,24 @@
+body {
+  background-color: #202020;
+  padding: 3px;
+  color: #00ff9fbd;
+  font-size: 100%;
+  font-family: "Lato", sans-serif;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.grid-container > div {
+  background-color: rgba(255, 255, 255, 0);
+  text-align: center;
+  padding: 20px;
+  max-width: 100%;
+  font-size: 30px;
+}
+
+#inner-div { 
+  text-align: center; 
+}
+#inner-div a { 
+  display: inline-block; 
+}
